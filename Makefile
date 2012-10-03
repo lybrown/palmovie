@@ -4,17 +4,24 @@ ruff.run:
 
 atari = /c/Documents\ and\ Settings/lybrown/Documents/Altirra.exe
 
+images:
+	for f in $$(cd orig; echo *.png); do \
+	convert +dither -compress none orig/$$f -remap pal.ppm $${f/.png/.ppm}; \
+	done
+
 %.run: %.xex
 	$(atari) $<
 
 %.xex: %.obx
 	cp $< $@
 
+%.asm.pl: %.asm.pp
+	perl -pe 's/^\s*>>>// or s/(.*)/print <<\\EOF;\n$$1\nEOF/' $< > $@
+
+%.asm: %.asm.pl
+	perl $< > $@
+	
 %.obx: %.asm
-	if grep -q "^ *icl" $<; then \
-	make $$(perl -ne "/^ *icl '(.+)'/&&print qq{\$$1 }" $< | sort -u); fi
-	if grep -q "^ *ins" $<; then \
-	make $$(perl -ne "/^ *ins '(.+)'/&&print qq{\$$1 }" $< | sort -u); fi
 	xasm /l $<
 
 clean:
