@@ -105,11 +105,11 @@ dlist
     dta $41,a(dlist)
     ini init
 >>> use strict; use warnings;
->>> my @frames = <ruff*.ppm.asm>;
+>>> my @frames = <$ENV{movie}*.ppm.asm>;
 >>> splice @frames, 1500;
 >>> sub audio {
 >>>   my ($count) = @_;
->>>   print "   ins 'ruff.audc',$count*312,312\n";
+>>>   print "   ins '$ENV{movie}.audc',$count*312,312\n";
 >>> }
 >>> my $count = 0;
 >>> for my $frame (@frames) {
