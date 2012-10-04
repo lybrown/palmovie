@@ -11,7 +11,6 @@ init
     sta IRQEN
     sta NMIEN
     sta DMACTL
-    mva #15 COLPM0
     ift pwm
     mva #$ff AUDF1
     mva #$ff AUDF2
@@ -30,6 +29,7 @@ init
     mva #0 GRAFP2
     mva #0 GRAFP3
     mva #0 GRAFM
+    mva #0 COLBK
     mva #$22 DMACTL
     lda #3
     cmp:rne VCOUNT
@@ -39,6 +39,8 @@ showframe
     ift pwm
     mva #$af AUDC1
     mva #$71 AUDCTL
+    ;mva $80 AUDF1
+    ;sta STIMER
     els
     mva $80 AUDC1
     eif
@@ -48,37 +50,33 @@ showframe
 image
     ldy audio,x
     sta WSYNC
-    mva #0 COLBK
+    ift pwm
+    sty AUDF1
+    sta STIMER
+    els
+    sty AUDC1
+    eif
     mva #$32 COLPF0
     mva #$72 COLPF1
     mva #$d2 COLPF2
-    ift pwm
-    sty AUDF1
-    sta STIMER
-    els
-    sty AUDC1
-    eif
     :2 inx
     ldy audio-1,x
     sta WSYNC
-    mva #0 COLBK
-    mva #6 COLPF0
-    mva #10 COLPF1
-    mva #14 COLPF2
     ift pwm
     sty AUDF1
     sta STIMER
     els
     sty AUDC1
     eif
+    mva #6 COLPF0
+    mva #10 COLPF1
+    mva #14 COLPF2
     cpx #240
     bne image
     ldx #0
 blank
     ldy audio+240,x
     sta WSYNC
-    :4 mva #0 COLBK
-    :1 nop
     ift pwm
     sty AUDF1
     sta STIMER
@@ -109,7 +107,7 @@ dlist
 >>> splice @frames, 1500;
 >>> sub audio {
 >>>   my ($count) = @_;
->>>   print "   ins '$ENV{movie}.audc',$count*312,312\n";
+>>>   print "   ins '$ENV{movie}.$ENV{audext}',$count*312,312\n";
 >>> }
 >>> my $count = 0;
 >>> for my $frame (@frames) {

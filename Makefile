@@ -1,16 +1,17 @@
 # $Id: Makefile 36 2008-06-29 23:46:07Z lybrown $
 
 export movie = ruff
+export audext = audc
 
 movie.run:
 
 atari = /c/Documents\ and\ Settings/lybrown/Documents/Altirra.exe
 
 frames = $(shell cd orig; echo *.png | sed s/.png/.ppm.asm/g)
-movie.obx: $(frames) $(movie).audc
+movie.obx: $(frames) $(movie).$(audext)
 
-%.u8: %.wav
-	sox -v 0.7 $< -u -b 8 -r15600 -D $@ dcshift -0.5 remix -
+%.audf: %.wav
+	sox -v 0.95 $< -u -b 8 -r15600 -D -t raw $@ dcshift -0.55 remix -
 
 %.raw: %.wav
 	sox -v 0.15 $< -u -b 8 -r15600 -D $@
@@ -37,7 +38,7 @@ movie.obx: $(frames) $(movie).audc
 	perl $< > $@
 	
 %.obx: %.asm
-	xasm /l /d:pwm=0 $<
+	xasm /l /d:pwm=$(if $(findstring audf,$(audext)),1,0) $<
 
 clean:
 	rm -f *.{obx,atr,lst} *.{tmc,tm2,pgm,wav}.asm *~
